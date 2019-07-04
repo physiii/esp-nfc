@@ -34,9 +34,22 @@ int load_nfc_uids_from_flash()
   return 0;
 }
 
-void add_auth_uid (char * id)
+void add_auth_uid (char * new_id)
 {
-  cJSON *id_obj =  cJSON_CreateString(id);
+  cJSON *id =  NULL;
+  char current_id[50];
+
+  cJSON_ArrayForEach(id, auth_uids) {
+    if (cJSON_IsString(id)) {
+      strcpy(current_id,id->valuestring);
+      printf("Current UID is %s.\n",current_id);
+      if (strcmp(current_id, new_id)==0) {
+        printf("UID Already added.\n");
+        return;
+      }
+    }
+  }
+  cJSON *id_obj =  cJSON_CreateString(new_id);
   cJSON_AddItemToArray(auth_uids, id_obj);
   store_nfc_uids(auth_uids);
 }
@@ -48,13 +61,16 @@ void remove_auth_uid (char * target_id)
   char current_id[50];
 
   cJSON_ArrayForEach(id, auth_uids) {
-    if (cJSON_IsString(id)) {
+    // if (cJSON_IsString(id)) {
       strcpy(current_id,id->valuestring);
-      printf("Current UID is %s.\n",current_id);
-      if (strcmp(current_id, target_id)!=0) {
+      // printf("Current UID is %s.\n",current_id);
+      if (strcmp(current_id, target_id)==0) {
+        printf("Found match for target %s...%s\n", target_id, current_id);
+      } else {
         cJSON_AddItemToArray(new_auth_uids,id);
+        printf("Add UID %s.\n",current_id);
       }
-    }
+    // }
   }
 
   store_nfc_uids(new_auth_uids);

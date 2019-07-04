@@ -71,6 +71,9 @@ struct access_log {
   bool granted;
 };
 
+uint8_t keypad_code[4];
+int code_size = 4;
+
 #include "services/storage.c"
 #include "services/LED.c"
 // #include "plugins/protocol_relay.c"
@@ -79,4 +82,5 @@ struct access_log {
 // #include "services/button.c"
 // #include "services/motion.c"
 #include "services/lock.c"
+#include "services/keypad.c"
 #include "services/nfc.c"

@@ -1,4 +1,4 @@
-#define LOCK_IO    0
+#define LOCK_IO    (1ULL<<0)
 
 char lock_service_message[2000];
 bool lock_service_message_ready = false;
@@ -41,11 +41,11 @@ int load_lock_state_from_flash() {
 void arm_lock (bool val) {
   if (val) {
     // setLED(255, 0, 0);
-    gpio_set_level(LOCK_IO, val);
+    gpio_set_level(0, val);
     printf("Lock armed.\n");
   } else {
     // setLED(0, 255, 0);
-    gpio_set_level(LOCK_IO, val);
+    gpio_set_level(0, val);
     printf("Lock disarmed.\n");
   }
   isLockArmed = val;
@@ -65,6 +65,8 @@ void lock_init() {
     io_conf.pull_up_en = 0;
     //configure GPIO with the given settings
     gpio_config(&io_conf);
+
+    gpio_set_level(0, 1);
 }
 
 int handle_property(char * prop) {
@@ -78,7 +80,7 @@ int handle_property(char * prop) {
 }
 
 static void lock_service(void *pvParameter) {
-  load_lock_state_from_flash();
+  // load_lock_state_from_flash();
 
   while (1) {
     // incoming messages from other services
@@ -100,6 +102,7 @@ static void lock_service(void *pvParameter) {
 
 void lock_main() {
   printf("starting lock service\n");
-  TaskHandle_t lock_service_task;
-  xTaskCreate(&lock_service, "lock_service_task", 5000, NULL, 5, NULL);
+  lock_init();
+  // TaskHandle_t lock_service_task;
+  // xTaskCreate(&lock_service, "lock_service_task", 5000, NULL, 5, NULL);
 }

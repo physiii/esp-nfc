@@ -1,17 +1,3 @@
-/* ESPNOW Example
-
-   This example code is in the Public Domain (or CC0 licensed, at your option.)
-
-   Unless required by applicable law or agreed to in writing, this
-   software is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
-   CONDITIONS OF ANY KIND, either express or implied.
-*/
-
-/*
-   This example shows how to use ESPNOW.
-   Prepare two device, one for sending ESPNOW data and another for receiving
-   ESPNOW data.
-*/
 #include <stdlib.h>
 #include <time.h>
 #include <string.h>
@@ -125,6 +111,8 @@ static void example_espnow_recv_cb(const uint8_t *mac_addr, const uint8_t *data,
 
 int handle_uid (char * uid)
 {
+  int mode = CHECK_UID;
+
   if (mode == ADD_UID) {
     add_auth_uid(uid);
     return 0;
@@ -163,7 +151,7 @@ int example_espnow_data_parse(uint8_t *data, uint16_t data_len, uint8_t *state, 
 
     // printf("data length: %u, struct size %u\n", data, sizeof(example_espnow_data_t));
     strcpy(uid_str,"");
-    printf("length: %u\n", buf->payload[0]);
+    // printf("length: %u\n", buf->payload[0]);
     for (int i=1; i <= buf->payload[0]; i++) {
       // printf("%x ", buf->payload[i]);
       sprintf(uid_str, "%s%x", uid_str, buf->payload[i]);
@@ -202,7 +190,7 @@ void example_espnow_data_prepare(example_espnow_send_param_t *send_param)
     // if (uid.size > 1) {
     //   send_param->len = uid.size+6;
     // }
-    printf("sending uid of size %u (%u): %s\n", uid.size, send_param->len, get_card_uid());
+    // printf("sending uid of size %u (%u): %s\n", uid.size, send_param->len, get_card_uid());
 
     if (new_card_found()) {
       buf->payload[0] = uid.size; // firt byte is buffer size
@@ -215,7 +203,18 @@ void example_espnow_data_prepare(example_espnow_send_param_t *send_param)
 
       buf->payload[uid.size+1] = 0; // end with zero
       printf("\n");
-    } else {
+    }
+    // else if (new_key_entered()) {
+    //   buf->payload[0] = code_size;
+    //   for (uint8_t i = 0; i < code_size; i++) {
+    //     printf(" %x", keypad_code[i]);
+    //     buf->payload[i+1] = keypad_code[i];
+    //   }
+    //
+    //   // buf->payload[code_size] = 0; // end with zero
+    //   printf("\n");
+    // }
+    else {
       buf->payload[0] = 0;
     }
 
@@ -456,5 +455,7 @@ void app_main()
 
     example_wifi_init();
     example_espnow_init();
+    lock_main();
     nfc_main();
+    // keypad_driver_main();
 }
